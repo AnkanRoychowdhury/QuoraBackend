@@ -27,4 +27,7 @@ public class Question extends AuditBaseModel{
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     private User user;
+
+    @OneToMany(mappedBy = "question")
+    private List<Answer> answers;
 }

@@ -1,8 +1,12 @@
 package me.ankanroychowdhury.quorabackend.controllers;
 
+import me.ankanroychowdhury.quorabackend.adapters.CreateAnswerDtoToAnswerAdapter;
 import me.ankanroychowdhury.quorabackend.adapters.CreateQuestionDtoToQuestionAdapter;
+import me.ankanroychowdhury.quorabackend.dtos.AnswerDTO;
+import me.ankanroychowdhury.quorabackend.dtos.CreateAnswerDTO;
 import me.ankanroychowdhury.quorabackend.dtos.CreateQuestionDTO;
 import me.ankanroychowdhury.quorabackend.dtos.QuestionDto;
+import me.ankanroychowdhury.quorabackend.entities.Answer;
 import me.ankanroychowdhury.quorabackend.entities.Question;
 import me.ankanroychowdhury.quorabackend.entities.Topic;
 import me.ankanroychowdhury.quorabackend.services.QuestionService;
@@ -19,10 +23,16 @@ public class QuestionController {
 
     private QuestionService questionService;
     private CreateQuestionDtoToQuestionAdapter createQuestionDtoToQuestionAdapter;
+    private CreateAnswerDtoToAnswerAdapter createAnswerDtoToAnswerAdapter;
 
-    public QuestionController(QuestionService questionService, CreateQuestionDtoToQuestionAdapter createQuestionDtoToQuestionAdapter) {
+    public QuestionController(QuestionService questionService,
+                              CreateQuestionDtoToQuestionAdapter createQuestionDtoToQuestionAdapter,
+                              CreateAnswerDtoToAnswerAdapter createAnswerDtoToAnswerAdapter
+    )
+    {
         this.questionService = questionService;
         this.createQuestionDtoToQuestionAdapter = createQuestionDtoToQuestionAdapter;
+        this.createAnswerDtoToAnswerAdapter = createAnswerDtoToAnswerAdapter;
     }
 
     @PostMapping
@@ -39,7 +49,7 @@ public class QuestionController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<?> searchQuestion(@RequestParam String text, @RequestParam String tag) throws Exception{
+    public ResponseEntity<?> searchQuestion(@RequestParam String text, @RequestParam String tag){
         try {
             List<Question> matchedQuestions = this.questionService.searchQuestions(text, tag);
             List<QuestionDto> questionDtos = new ArrayList<>();
@@ -69,5 +79,36 @@ public class QuestionController {
                 .createdAt(matchedQuestion.getCreatedAt())
                 .updatedAt(matchedQuestion.getUpdatedAt())
                 .build();
+    }
+
+    @PostMapping("/{questionId}/answers")
+    public ResponseEntity<?> postAnswerToQuestion(@PathVariable Long questionId, @RequestBody CreateAnswerDTO createAnswerDTO){
+        try {
+            Answer incomingAnswer = this.createAnswerDtoToAnswerAdapter.convertDto(createAnswerDTO);
+            Answer savedAnswer = this.questionService.postAnswer(questionId, incomingAnswer);
+            List<Topic> topics = savedAnswer.getQuestion().getTopics();
+            List<String> tags = new ArrayList<>();
+            for (Topic topic : topics) {
+                tags.add(topic.getName());
+            }
+            QuestionDto questionDto = QuestionDto.builder()
+                                                .id(savedAnswer.getQuestion().getId())
+                                                .title(savedAnswer.getQuestion().getTitle())
+                                                .description(savedAnswer.getQuestion().getDescription())
+                                                .author(savedAnswer.getQuestion().getUser().getId())
+                                                .tags(tags)
+                                                .createdAt(savedAnswer.getQuestion().getCreatedAt())
+                                                .updatedAt(savedAnswer.getQuestion().getUpdatedAt())
+                                                .build();
+            AnswerDTO response = AnswerDTO.builder()
+                                            .id(savedAnswer.getId())
+                                            .answeredBy(savedAnswer.getUser().getUsername())
+                                            .content(savedAnswer.getText())
+                                            .question(questionDto)
+                                            .build();
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        }catch (Exception e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
