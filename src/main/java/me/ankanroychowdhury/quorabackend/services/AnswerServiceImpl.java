@@ -2,15 +2,19 @@ package me.ankanroychowdhury.quorabackend.services;
 
 import jakarta.persistence.EntityNotFoundException;
 import me.ankanroychowdhury.quorabackend.entities.Answer;
+import me.ankanroychowdhury.quorabackend.entities.Comment;
 import me.ankanroychowdhury.quorabackend.repositories.AnswerRepository;
+import me.ankanroychowdhury.quorabackend.repositories.CommentRepository;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AnswerServiceImpl implements AnswerService {
     private AnswerRepository answerRepository;
+    private CommentRepository commentRepository;
 
-    public AnswerServiceImpl(AnswerRepository answerRepository) {
+    public AnswerServiceImpl(AnswerRepository answerRepository, CommentRepository commentRepository) {
         this.answerRepository = answerRepository;
+        this.commentRepository = commentRepository;
     }
 
     @Override
@@ -22,6 +26,18 @@ public class AnswerServiceImpl implements AnswerService {
         }catch (Exception e){
             e.printStackTrace();
             throw new Exception("Unable to update the answer currently try later");
+        }
+    }
+    @Override
+    public Comment commentOnAnswer(Long answerId, Comment comment) throws Exception{
+        try {
+            Answer answer = this.answerRepository.findById(answerId).orElseThrow(EntityNotFoundException::new);
+            comment.setAnswer(answer);
+            comment = this.commentRepository.save(comment);
+            return comment;
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new Exception("Unable to update the comment on answer with id "+ answerId + " currently try later");
         }
     }
 }

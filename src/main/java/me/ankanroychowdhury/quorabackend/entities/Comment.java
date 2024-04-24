@@ -3,7 +3,6 @@ package me.ankanroychowdhury.quorabackend.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
 
 @Entity
 @Builder
@@ -11,18 +10,15 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Answer extends AuditBaseModel{
+public class Comment extends AuditBaseModel {
 
     @Column(nullable = false)
-    private String text;
+    private String content;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     private User user;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Question question;
-
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<Comment> comments;
+    private Answer answer;
 }

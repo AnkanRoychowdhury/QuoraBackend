@@ -33,7 +33,7 @@ public class QuestionServiceImpl implements QuestionService{
     @Override
     public List<Question> searchQuestions(String text, String tag) throws Exception {
         try {
-            return this.questionRepository.findAllByTitleContainsAndDescriptionContains(text,text);
+            return this.questionRepository.findAllByTitleContainsOrDescriptionContains(text,text);
         }catch (Exception e){
             e.printStackTrace();
             throw new Exception("Unable to search the questions");
