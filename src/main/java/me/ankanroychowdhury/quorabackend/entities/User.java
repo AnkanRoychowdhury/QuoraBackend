@@ -3,6 +3,8 @@ package me.ankanroychowdhury.quorabackend.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 
 @Entity
 @AllArgsConstructor
@@ -11,21 +13,13 @@ import lombok.*;
 @Getter
 @Setter
 public class User extends AuditBaseModel{
-
     @Column(nullable = false)
     private String username;
-
     @Column(nullable = false, unique = true)
     private String email;
-
     private String bio;
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + this.getId() +
-                ", username='" + username + '\'' +
-                ", email='" + email + '\'' +
-                '}';
-    }
+    @ManyToMany
+    private List<User> follower;
+    @ManyToMany
+    private List<User> following;
 }

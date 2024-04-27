@@ -51,4 +51,17 @@ public class UserController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PostMapping("/{userId}/follow/{targetUserId}")
+    public ResponseEntity<?> addFollower(@PathVariable Long userId, @PathVariable Long targetUserId) {
+        try {
+            Boolean response = this.userService.addFollower(userId, targetUserId);
+            if(!response){
+                return new ResponseEntity<>("Unable to follow right now try later",HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+            return new ResponseEntity<>("Successfully followed user: "+ targetUserId, HttpStatus.CREATED);
+        }catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

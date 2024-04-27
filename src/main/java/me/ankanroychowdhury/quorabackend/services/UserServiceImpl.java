@@ -69,4 +69,20 @@ public class UserServiceImpl implements IUserService{
             throw new EntityNotFoundException("Unable to update user details");
         }
     }
+
+    @Override
+    public Boolean addFollower(Long userId, Long targetUserId) throws Exception {
+        try {
+            User user = this.userRepository.findById(userId).orElseThrow(EntityNotFoundException::new);
+            User targetUserToFollow = this.userRepository.findById(targetUserId).orElseThrow(EntityNotFoundException::new);
+            targetUserToFollow.getFollower().add(user);
+            user.getFollowing().add(targetUserToFollow);
+            this.userRepository.save(user);
+            this.userRepository.save(targetUserToFollow);
+            return true;
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new Exception(e.getMessage());
+        }
+    }
 }
