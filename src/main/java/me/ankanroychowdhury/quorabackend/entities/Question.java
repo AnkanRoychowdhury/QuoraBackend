@@ -12,6 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
+@ToString
 @Inheritance(strategy = InheritanceType.JOINED)
 public class Question extends AuditBaseModel{
 

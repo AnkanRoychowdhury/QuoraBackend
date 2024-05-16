@@ -54,7 +54,6 @@ public class QuestionController {
             List<Question> matchedQuestions = this.questionService.searchQuestions(text, tag);
             List<QuestionDto> questionDtos = new ArrayList<>();
             for(Question matchedQuestion : matchedQuestions){
-                createQuestionDtoResponse(matchedQuestion);
                 QuestionDto questionDto = createQuestionDtoResponse(matchedQuestion);
                 questionDtos.add(questionDto);
             }
